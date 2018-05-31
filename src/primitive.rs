@@ -9,6 +9,7 @@ impl Sphere {
         Sphere { origin, radius }
     }
 }
+
 impl Intersect for Sphere {
     /// Returns the closest interection.
     /// The formula below is derived from the implicit surface of a sphere.
@@ -33,7 +34,7 @@ impl Intersect for Sphere {
             let t2 = (-b + discr.sqrt()) / two_a;
             f32::min(t1, t2)
         };
-        if t < 0.0 {
+        if t < 0.01 {
             None
         } else {
             let position = ray.position(t);

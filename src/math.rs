@@ -37,3 +37,25 @@ pub fn random_in_unit_sphere() -> Vector3<f32> {
         v
     }
 }
+
+use primitive::Sphere;
+pub struct World {
+    pub objects: Vec<Sphere>,
+}
+impl World {
+    pub fn color(&self, ray: Ray) -> Vector3<f32> {
+        let hit = self.intersect(ray);
+        if let Some(rayhit) = hit {
+            let target = rayhit.position + rayhit.normal + random_in_unit_sphere();
+            0.5 * self.color(Ray::new(rayhit.position, target - rayhit.position))
+        } else {
+            let t = 0.5 * (ray.dir.y + 1.0);
+            (1.0 - t) * Vector3::new(1.0, 1.0, 1.0) + t * Vector3::new(0.5, 0.7, 1.0)
+        }
+    }
+}
+impl Intersect for World {
+    fn intersect(&self, ray: Ray) -> Option<Rayhit> {
+        self.objects.iter().filter_map(|s| s.intersect(ray)).nth(0)
+    }
+}

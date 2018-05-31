@@ -15,21 +15,16 @@ fn main() {
         Deg(60.0),
     );
 
-    let spheres = [
+    let spheres = vec![
         Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5),
         Sphere::new(Vector3::new(0.0, -100.5, -1.0), 100.0),
     ];
+    let world = World {
+        objects: spheres
+    };
 
-    let image = cam.render(100, |ray| {
-        let hit = spheres.iter().filter_map(|s| s.intersect(ray)).nth(0);
-        if let Some(rayhit) = hit {
-            let normal = rayhit.normal;
-            let normal = 0.5 * (normal + Vector3::new(1.0, 1.0, 1.0));
-            normal
-        } else {
-            let t = 0.5 * (ray.dir.y + 1.0);
-            (1.0 - t) * Vector3::new(1.0, 1.0, 1.0) + t * Vector3::new(0.5, 0.7, 1.0)
-        }
+    let image = cam.render(10, |ray| {
+        world.color(ray)
     });
     image.save("test.png").unwrap();
 }

@@ -18,15 +18,18 @@ fn main() {
         800,
         800,
         Vector3::new(0.0, 0.0, 0.0),
-        Vector3::unit_z(),
+        -Vector3::unit_z(),
         Vector3::unit_y(),
         10.0,
         Deg(60.0),
     );
-    let sphere = Sphere::new(Vector3::new(0.0, 0.0, 1.0), 0.5);
+    let sphere = Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5);
     let image = cam.render(|ray| {
-        if let Some(_rayhit) = sphere.intersect(ray) {
-            vec_to_rgb(Vector3::new(1.0, 0.0, 0.0))
+        if let Some(rayhit) = sphere.intersect(ray) {
+            let location = rayhit.location();
+            let normal = location - sphere.origin;
+            let normal = 0.5 * (normal.normalize() + Vector3::new(1.0, 1.0, 1.0));
+            vec_to_rgb(normal)
         } else {
             let t = 0.5 * (ray.dir.y + 1.0);
             let v = (1.0 - t) * Vector3::new(1.0, 1.0, 1.0) + t * Vector3::new(0.5, 0.7, 1.0);

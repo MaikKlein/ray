@@ -1,0 +1,8 @@
+[package]
+name = "ray"
+version = "0.1.0"
+authors = ["Maik Klein <maikklein@googlemail.com>"]
+
+[dependencies]
+image = "0.19"
+cgmath = "0.16"

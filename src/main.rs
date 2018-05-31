@@ -14,9 +14,15 @@ fn main() {
         10.0,
         Deg(60.0),
     );
-    let sphere = Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5);
+
+    let spheres = [
+        Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5),
+        Sphere::new(Vector3::new(0.0, -100.5, -1.0), 100.0),
+    ];
+
     let image = cam.render(100, |ray| {
-        if let Some(rayhit) = sphere.intersect(ray) {
+        let hit = spheres.iter().filter_map(|s| s.intersect(ray)).nth(0);
+        if let Some(rayhit) = hit {
             let normal = rayhit.normal;
             let normal = 0.5 * (normal + Vector3::new(1.0, 1.0, 1.0));
             normal

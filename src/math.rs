@@ -27,3 +27,13 @@ pub struct Rayhit {
 pub trait Intersect {
     fn intersect(&self, ray: Ray) -> Option<Rayhit>;
 }
+
+pub fn random_in_unit_sphere() -> Vector3<f32> {
+    use rand::random;
+    let v = Vector3::new(random(), random(), random());
+    if v.dot(v) >= 1.0 {
+        v.normalize() * random()
+    } else {
+        v
+    }
+}

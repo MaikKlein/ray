@@ -26,9 +26,8 @@ fn main() {
     let sphere = Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5);
     let image = cam.render(|ray| {
         if let Some(rayhit) = sphere.intersect(ray) {
-            let location = rayhit.location();
-            let normal = location - sphere.origin;
-            let normal = 0.5 * (normal.normalize() + Vector3::new(1.0, 1.0, 1.0));
+            let normal = rayhit.normal;
+            let normal = 0.5 * (normal + Vector3::new(1.0, 1.0, 1.0));
             vec_to_rgb(normal)
         } else {
             let t = 0.5 * (ray.dir.y + 1.0);

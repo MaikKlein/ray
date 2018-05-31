@@ -15,13 +15,11 @@ impl Ray {
 }
 
 pub struct Rayhit {
-    pub ray: Ray,
-    pub t: f32,
+    pub dist: f32,
+    pub position: Vector3<f32>,
+    pub normal: Vector3<f32>
 }
 
-impl Rayhit {
-    pub fn location(&self) -> Vector3<f32> {
-        let ray = self.ray;
-        ray.origin + ray.dir * self.t
-    }
+pub trait Intersect {
+    fn intersect(&self, ray: Ray) -> Option<Rayhit>;
 }

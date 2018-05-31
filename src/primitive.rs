@@ -1,4 +1,4 @@
-use math::{InnerSpace, Ray, Rayhit, Vector3};
+use math::{InnerSpace, Intersect, Ray, Rayhit, Vector3};
 pub struct Sphere {
     pub origin: Vector3<f32>,
     pub radius: f32,
@@ -8,18 +8,20 @@ impl Sphere {
     pub fn new(origin: Vector3<f32>, radius: f32) -> Sphere {
         Sphere { origin, radius }
     }
-
+}
+impl Intersect for Sphere {
     /// Returns the closest interection.
     /// The formula below is derived from the implicit surface of a sphere.
-    /// If the disremninant is negative, then we have an imaginary solution and
+    /// If the discriminant is negative, then we have an imaginary solution and
     /// we return None.
     /// If t is negative, this means that the intersection is behind the camera
     /// and we return None
     /// If t is positive we return the smallest t because this is the closest
     /// intersection.
-    pub fn intersect(&self, ray: Ray) -> Option<Rayhit> {
+    fn intersect(&self, ray: Ray) -> Option<Rayhit> {
         let oc = ray.origin - self.origin;
-        let a = InnerSpace::dot(ray.dir, ray.dir);
+        // a is always one if the direction is a unit vector
+        let a = 1.0;
         let b = 2.0 * InnerSpace::dot(ray.dir, oc);
         let c = InnerSpace::dot(oc, oc) - self.radius * self.radius;
         let discr = b * b - 4.0 * a * c;
@@ -34,7 +36,14 @@ impl Sphere {
         if t < 0.0 {
             None
         } else {
-            Some(Rayhit { ray, t })
+            let position = ray.origin + t * ray.dir;
+            let normal = position - self.origin;
+            let normal = normal.normalize();
+            Some(Rayhit {
+                position,
+                normal,
+                dist: t,
+            })
         }
     }
 }

@@ -1,4 +1,4 @@
-use cgmath::{Vector3};
+pub use cgmath::{Vector3, InnerSpace, Deg, Rad};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Ray {

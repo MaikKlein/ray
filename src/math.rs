@@ -12,12 +12,16 @@ impl Ray {
             dir: dir.normalize(),
         }
     }
+
+    pub fn position(&self, t: f32) -> Vector3<f32> {
+        self.origin + t * self.dir
+    }
 }
 
 pub struct Rayhit {
     pub dist: f32,
     pub position: Vector3<f32>,
-    pub normal: Vector3<f32>
+    pub normal: Vector3<f32>,
 }
 
 pub trait Intersect {

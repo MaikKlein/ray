@@ -36,7 +36,7 @@ impl Intersect for Sphere {
         if t < 0.0 {
             None
         } else {
-            let position = ray.origin + t * ray.dir;
+            let position = ray.position(t);
             let normal = position - self.origin;
             let normal = normal.normalize();
             Some(Rayhit {

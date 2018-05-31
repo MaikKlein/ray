@@ -39,10 +39,11 @@ impl Camera {
             height,
         }
     }
-    pub fn render<F>(&self, f: F) -> RgbImage
+    pub fn render<F>(&self, samples: u32, f: F) -> RgbImage
     where
-        F: Fn(Ray) -> Rgb<u8>,
+        F: Fn(Ray) -> Vector3<f32>,
     {
+        use rand::random;
         let mut image_buffer = ImageBuffer::new(self.width, self.height);
         let half_fov = Rad::from(self.fov).0;
         let right = self.u * self.focus_dist * f32::tan(half_fov);
@@ -52,14 +53,28 @@ impl Camera {
         let upper_left_corner = forward - right + up;
         for y in (0..self.height).rev() {
             for x in 0..self.width {
-                let u = x as f32 / self.width as f32;
-                let v = y as f32 / self.height as f32;
-                let dir = upper_left_corner + (right * 2.0 * u) - (up * 2.0 * v);
-                let ray = Ray::new(self.origin, dir);
-                let rgb = f(ray);
+                let average = (0..samples)
+                    .map(|_| {
+                        let u = (x as f32 + random::<f32>()) / self.width as f32;
+                        let v = (y as f32 + random::<f32>()) / self.height as f32;
+                        let dir = upper_left_corner + (right * 2.0 * u) - (up * 2.0 * v);
+                        let ray = Ray::new(self.origin, dir);
+                        f(ray)
+                    })
+                    .sum::<Vector3<f32>>() / samples as f32;
+                let rgb = vec_to_rgb(average);
                 image_buffer.put_pixel(x, y, rgb);
             }
         }
         image_buffer
+    }
+}
+fn vec_to_rgb(v: Vector3<f32>) -> Rgb<u8> {
+    let b = v.map(|f| {
+        assert!(f <= 1.0);
+        (f * 255.0) as u8
+    });
+    Rgb {
+        data: [b.x, b.y, b.z],
     }
 }

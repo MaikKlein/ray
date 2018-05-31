@@ -49,13 +49,13 @@ impl Camera {
         let up = self.v * self.focus_dist * f32::tan(half_fov);
 
         let forward = self.w * self.focus_dist;
-        let upper_left_corner = forward + right + up;
+        let upper_left_corner = forward - right + up;
         for y in (0..self.height).rev() {
             for x in 0..self.width {
                 let u = x as f32 / self.width as f32;
                 let v = y as f32 / self.height as f32;
                 let dir = upper_left_corner + (right * 2.0 * u) - (up * 2.0 * v);
-                let ray = Ray::new(self.origin, dir.normalize());
+                let ray = Ray::new(self.origin, dir);
                 let rgb = f(ray);
                 image_buffer.put_pixel(x, y, rgb);
             }

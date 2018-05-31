@@ -1,4 +1,4 @@
-pub use cgmath::{Vector3, InnerSpace, Deg, Rad};
+pub use cgmath::{Deg, InnerSpace, Rad, Vector3};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Ray {
@@ -7,6 +7,21 @@ pub struct Ray {
 }
 impl Ray {
     pub fn new(origin: Vector3<f32>, dir: Vector3<f32>) -> Ray {
-        Ray { origin, dir }
+        Ray {
+            origin,
+            dir: dir.normalize(),
+        }
+    }
+}
+
+pub struct Rayhit {
+    pub ray: Ray,
+    pub t: f32,
+}
+
+impl Rayhit {
+    pub fn location(&self) -> Vector3<f32> {
+        let ray = self.ray;
+        ray.origin + ray.dir * self.t
     }
 }

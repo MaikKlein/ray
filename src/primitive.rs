@@ -45,9 +45,7 @@ impl Intersect for Sphere {
             let t2 = (-b + discr.sqrt()) / two_a;
             f32::min(t1, t2)
         };
-        if t < 0.01 {
-            None
-        } else {
+        if t > 0.0001 {
             let position = ray.position(t);
             let normal = position - self.origin;
             let normal = normal.normalize();
@@ -56,6 +54,8 @@ impl Intersect for Sphere {
                 normal,
                 dist: t,
             })
+        } else {
+            None
         }
     }
 }

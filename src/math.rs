@@ -43,33 +43,52 @@ use material::{Object, Surface};
 pub struct World {
     pub objects: Vec<Object>,
 }
+
 impl World {
-    pub fn color(&self, ray: Ray) -> Vector3<f32> {
-        if let Some((object, rayhit)) = self.objects
+    pub fn closest_intersect(&self, ray: Ray) -> Option<(&Object, Rayhit)> {
+        self.objects
             .iter()
-            .filter_map(|object| {
-                object
-                    .primitive
-                    .intersect(ray)
-                    .map(|rayhit| (object, rayhit))
+            .filter_map(|object| object.primitive.intersect(ray).map(|rh| (object, rh)))
+            .fold(None, |acc, elem| match acc {
+                None => Some(elem),
+                Some(o) => {
+                    if elem.1.dist < o.1.dist {
+                        Some(elem)
+                    } else {
+                        Some(o)
+                    }
+                }
             })
-            .nth(0)
-        {
-            let scatter = object.scatter(rayhit);
-            let a = scatter.attenuation;
-            let c = self.color(scatter.ray);
-            0.5 * Vector3::new(a.x * c.x, a.y * c.y, a.z * c.z)
-        } else {
-            let t = 0.5 * (ray.dir.y + 1.0);
-            (1.0 - t) * Vector3::new(1.0, 1.0, 1.0) + t * Vector3::new(0.5, 0.7, 1.0)
+    }
+
+    pub fn color(&self, ray: Ray) -> Vector3<f32> {
+        self.color_impl(ray, 0)
+    }
+
+    fn color_impl(&self, ray: Ray, depth: u32) -> Vector3<f32> {
+        if depth >= 50 {
+            return Vector3::new(0.0, 0.0, 0.0);
         }
+        let closest_intersect = self.closest_intersect(ray);
+        closest_intersect
+            .map(|(object, rayhit)| {
+                object
+                    .material
+                    .scatter(ray, rayhit)
+                    .map(|scatter| {
+                        let a = scatter.attenuation;
+                        let c = self.color_impl(scatter.ray, depth + 1);
+                        Vector3::new(a.x * c.x, a.y * c.y, a.z * c.z)
+                    })
+                    .unwrap_or(Vector3::new(0.0, 0.0, 0.0))
+            })
+            .unwrap_or_else(|| {
+                let t = 0.5 * (ray.dir.y + 1.0);
+                (1.0 - t) * Vector3::new(1.0, 1.0, 1.0) + t * Vector3::new(0.5, 0.7, 1.0)
+            })
     }
 }
-// impl Intersect for World {
-//     fn intersect(&self, ray: Ray) -> Option<Rayhit> {
-//         self.objects
-//             .iter()
-//             .filter_map(|s| s.primitive.intersect(ray))
-//             .nth(0)
-//     }
-// }
+
+pub fn reflect(v: Vector3<f32>, normal: Vector3<f32>) -> Vector3<f32> {
+    v - 2.0 * InnerSpace::dot(v, normal) * normal
+}

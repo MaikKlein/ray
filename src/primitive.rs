@@ -1,4 +1,15 @@
 use math::{InnerSpace, Intersect, Ray, Rayhit, Vector3};
+pub enum Primitive {
+    Sphere(Sphere),
+}
+impl Intersect for Primitive {
+    fn intersect(&self, ray: Ray) -> Option<Rayhit> {
+        match self {
+            Primitive::Sphere(sphere) => sphere.intersect(ray),
+        }
+    }
+}
+
 pub struct Sphere {
     pub origin: Vector3<f32>,
     pub radius: f32,

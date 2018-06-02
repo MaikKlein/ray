@@ -7,3 +7,4 @@ authors = ["Maik Klein <maikklein@googlemail.com>"]
 image = "0.19"
 cgmath = "0.16"
 rand = "0.5"
+rayon = "1.0"

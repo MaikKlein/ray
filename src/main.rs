@@ -18,8 +18,12 @@ fn main() {
     let objects = vec![
         Object {
             primitive: Primitive::Sphere(Sphere::new(Vector3::new(0.0, -100.5, -1.0), 100.0)),
-            material: Material::Lambert(Lambert {
+            // material: Material::Lambert(Lambert {
+            //     albedo: Vector3::new(0.8, 0.8, 0.0),
+            // }),
+            material: Material::Metal(Metal {
                 albedo: Vector3::new(0.8, 0.8, 0.0),
+                fuzz: 0.3,
             }),
         },
         Object {
@@ -51,6 +55,6 @@ fn main() {
     ];
     let world = World { objects };
 
-    let image = cam.render(100, |ray| world.color(ray));
+    let image = cam.render(400, |ray| world.color(ray));
     image.save("render.png").unwrap();
 }

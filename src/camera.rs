@@ -1,6 +1,7 @@
 use cgmath::{Deg, InnerSpace, Rad, Vector3};
-use image::{GenericImage, ImageBuffer, Rgb, RgbImage};
+use image::{ImageBuffer, Rgb, RgbImage};
 use math::Ray;
+use rayon::prelude::*;
 
 pub struct Camera {
     pub width: u32,
@@ -41,7 +42,7 @@ impl Camera {
     }
     pub fn render<F>(&self, samples: u32, f: F) -> RgbImage
     where
-        F: Fn(Ray) -> Vector3<f32>,
+        F: Fn(Ray) -> Vector3<f32> + Send + Sync,
     {
         use rand::random;
         let mut image_buffer = ImageBuffer::new(self.width, self.height);
@@ -51,8 +52,14 @@ impl Camera {
 
         let forward = self.w * self.focus_dist;
         let upper_left_corner = forward - right + up;
-        for y in (0..self.height).rev() {
-            for x in 0..self.width {
+        let x_iter = (0..self.width).into_par_iter();
+        // Lazy workaround: Collect into a temporary buffer
+        let results: Vec<_> = x_iter
+            .flat_map(|x| {
+                let y_iter = (0..self.height).into_par_iter().rev();
+                y_iter.map(move |y| (x, y))
+            })
+            .map(|(x, y)| {
                 let average = (0..samples)
                     .map(|_| {
                         let u = (x as f32 + random::<f32>()) / self.width as f32;
@@ -62,10 +69,12 @@ impl Camera {
                         f(ray)
                     })
                     .sum::<Vector3<f32>>() / samples as f32;
-                let rgb = vec_to_rgb(average);
-                image_buffer.put_pixel(x, y, rgb);
-            }
-        }
+                (x, y, vec_to_rgb(average))
+            })
+            .collect();
+        results.into_iter().for_each(|(x, y, rgb)| {
+            image_buffer.put_pixel(x, y, rgb);
+        });
         image_buffer
     }
 }

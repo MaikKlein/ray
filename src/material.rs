@@ -59,10 +59,11 @@ impl Lambert {
 
 pub struct Metal {
     pub albedo: Vector3<f32>,
+    pub fuzz: f32,
 }
 impl Metal {
     pub fn scatter(&self, ray_in: Ray, rayhit: Rayhit) -> Option<Scatter> {
-        let reflect = reflect(ray_in.dir, rayhit.normal);
+        let reflect = reflect(ray_in.dir, rayhit.normal) + self.fuzz * random_in_unit_sphere();
         let ray = Ray::new(rayhit.position, reflect);
         if InnerSpace::dot(ray.dir, rayhit.normal) > 0.0 {
             Some(Scatter {

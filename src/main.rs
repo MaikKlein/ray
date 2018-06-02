@@ -39,7 +39,7 @@ fn main() {
             primitive: Primitive::Sphere(Sphere::new(Vector3::new(-1.0, 0.0, -1.0), 0.5)),
             material: Material::Metal(Metal {
                 albedo: Vector3::new(0.8, 0.8, 0.8),
-                fuzz: 0.0,
+                fuzz: 0.1,
             }),
         },
         Object {
@@ -51,6 +51,6 @@ fn main() {
     ];
     let world = World { objects };
 
-    let image = cam.render(10, |ray| world.color(ray));
+    let image = cam.render(100, |ray| world.color(ray));
     image.save("render.png").unwrap();
 }

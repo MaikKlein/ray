@@ -89,6 +89,19 @@ impl World {
     }
 }
 
+pub fn refract(v: Vector3<f32>, normal: Vector3<f32>, ni_nt: f32) -> Option<Vector3<f32>> {
+    let uv = v.normalize();
+    let dt = uv.dot(normal);
+    let discr = 1.0 - ni_nt * ni_nt * (1.0-dt*dt);
+    if discr > 0.0 {
+        let refracted = ni_nt * (uv - normal * dt) - normal * discr.sqrt();
+        Some(refracted)
+    }
+    else{
+        None
+    }
+}
+
 pub fn reflect(v: Vector3<f32>, normal: Vector3<f32>) -> Vector3<f32> {
     v - 2.0 * InnerSpace::dot(v, normal) * normal
 }

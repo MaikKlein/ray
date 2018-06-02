@@ -1,4 +1,4 @@
-use math::{random_in_unit_sphere, reflect, InnerSpace, Intersect, Ray, Rayhit, Vector3};
+use math::{random_in_unit_sphere, reflect, refract, InnerSpace, Intersect, Ray, Rayhit, Vector3};
 use primitive::Primitive;
 
 pub trait Surface {
@@ -61,6 +61,7 @@ pub struct Metal {
     pub albedo: Vector3<f32>,
     pub fuzz: f32,
 }
+
 impl Metal {
     pub fn scatter(&self, ray_in: Ray, rayhit: Rayhit) -> Option<Scatter> {
         let reflect = reflect(ray_in.dir, rayhit.normal) + self.fuzz * random_in_unit_sphere();
